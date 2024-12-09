@@ -1,6 +1,6 @@
 use std::fs;
 
-use log::{info, trace};
+use log::{info};
 
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day7.txt";
 

@@ -3,7 +3,7 @@ use std::{
     fs,
 };
 
-use log::{debug, info, trace};
+use log::{debug, info};
 
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day8.txt";
 
