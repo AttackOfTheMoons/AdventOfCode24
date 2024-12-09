@@ -8,7 +8,7 @@ use log::{debug, info, trace};
 
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day9.txt";
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 struct Range {
     start_idx: u32,
     len: u32,
@@ -66,37 +66,27 @@ pub fn day9() {
     for i in bar.wrap_iter((0..id).rev()) {
         let (start_idx, block_size) = *memory_map.get(&i).unwrap();
         trace!("File #{i} currently sits at {start_idx} ({block_size} long)");
-        let mut new_free_memory = BTreeSet::new();
-        let mut result = None;
-        for r in free_memory.into_iter() {
-            trace!("Checking {r:?}");
-            if r.len >= block_size && r.start_idx < start_idx && result.is_none() {
-                result = Some(r)
-            } else {
-                new_free_memory.insert(r);
+
+        if let Some(&free) = free_memory
+            .iter()
+            .find(|&&r| r.len >= block_size && r.start_idx < start_idx)
+        {
+            free_memory.remove(&free);
+            trace!(
+                "Found open spot for {i} which is {block_size} long at {}",
+                free.start_idx
+            );
+            if free.len > block_size {
+                free_memory.insert(Range::new(
+                    free.start_idx + block_size,
+                    free.len - block_size,
+                ));
             }
-        }
-        free_memory = new_free_memory;
 
-        if result.is_none() {
-            continue;
+            memory_map.remove(&i);
+            memory_map.insert(i, (free.start_idx, block_size));
+            free_memory.insert(Range::new(start_idx, block_size));
         }
-
-        let free = result.unwrap();
-        trace!(
-            "Found open spot for {i} which is {block_size} long at {}",
-            free.start_idx
-        );
-
-        if free.len > block_size {
-            free_memory.insert(Range::new(
-                free.start_idx + block_size,
-                free.len - block_size,
-            ));
-        }
-        memory_map.remove(&i);
-        memory_map.insert(i, (free.start_idx, block_size));
-        free_memory.insert(Range::new(start_idx, block_size));
     }
     debug!("Memory_map: {memory_map:?}");
 
