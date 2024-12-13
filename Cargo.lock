@@ -10,6 +10,7 @@ dependencies = [
  "env_logger",
  "indicatif",
  "log",
+ "regex",
 ]
 
 [[package]]
