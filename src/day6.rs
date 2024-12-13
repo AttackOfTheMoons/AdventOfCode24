@@ -3,6 +3,8 @@ use std::{collections::HashSet, fs, thread};
 
 use log::{info, trace};
 
+use crate::Direction;
+
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day6.txt";
 
 pub fn day6() {
@@ -145,14 +147,6 @@ fn part1(
     info!("Loop was {} steps", positions.len());
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
 struct Guard {
     pos_x: i32,
     pos_y: i32,
@@ -184,12 +178,7 @@ impl Guard {
         (grid_size_x, grid_size_y): (usize, usize),
         outer_vec: &Vec<Vec<char>>,
     ) -> bool {
-        let (move_x, move_y) = match &self.facing {
-            Direction::Up => (0, -1),
-            Direction::Down => (0, 1),
-            Direction::Left => (-1, 0),
-            Direction::Right => (1, 0),
-        };
+        let (move_x, move_y) = self.facing.coords();
         let (res_x, res_y) = (self.pos_x + move_x, self.pos_y + move_y);
 
         if res_x < 0

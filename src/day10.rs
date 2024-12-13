@@ -2,15 +2,9 @@ use std::{collections::HashSet, fs};
 
 use log::{info, trace};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day10.txt";
+use crate::Direction;
 
-#[derive(Debug)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day10.txt";
 
 pub fn day10() {
     let file_contents =
@@ -80,7 +74,7 @@ fn climb_sub(
 ) -> Box<dyn '_ + Iterator<Item = (usize, usize)>> {
     let &num = vec.get(start_y).unwrap().get(start_x).unwrap();
     trace!("stepping from ({start_x}, {start_y}) {num} {dir:?}");
-    let (dir_x, dir_y) = dir_to_coords(&dir);
+    let (dir_x, dir_y) = dir.coords();
     let (result_x, result_y) = ((start_x as i32 + dir_x), (start_y as i32 + dir_y));
     if result_x < 0 || result_x as usize >= vec_x || result_y < 0 || result_y as usize >= vec_y {
         return Box::new(std::iter::empty());
@@ -115,13 +109,4 @@ fn climb_sub(
                 Direction::Right,
             )),
     )
-}
-
-fn dir_to_coords(dir: &Direction) -> (i32, i32) {
-    match dir {
-        Direction::Up => (0, -1),
-        Direction::Down => (0, 1),
-        Direction::Left => (-1, 0),
-        Direction::Right => (1, 0),
-    }
 }
