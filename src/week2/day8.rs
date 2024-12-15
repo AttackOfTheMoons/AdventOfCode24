@@ -5,7 +5,7 @@ use std::{
 
 use log::{debug, info};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day8.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_2\\day8.txt";
 
 pub fn day8() {
     let file_contents =

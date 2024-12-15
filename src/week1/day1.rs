@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day1.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_1\\day1.txt";
 
 pub fn day1() {
     let file_contents = fs::read_to_string(INPUT_FILE)

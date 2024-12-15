@@ -1,7 +1,7 @@
 use log::{debug, info, warn};
 use std::fs;
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day2.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_1\\day2.txt";
 
 pub fn day2() {
     let file_contents = fs::read_to_string(INPUT_FILE)

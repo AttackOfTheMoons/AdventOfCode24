@@ -6,7 +6,7 @@ use regex::Regex;
 
 use crate::Coord2D;
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day13.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_2\\day13.txt";
 
 const INPUT_PATTERN: &str = r"(?m)(?R)^Button A: X\+(?<button_a_x>\d+), Y\+(?<button_a_y>\d+)\r\nButton B: X\+(?<button_b_x>\d+), Y\+(?<button_b_y>\d+)\r\nPrize: X=(?<prize_x>\d+), Y=(?<prize_y>\d+)(?:\r\n)?$";
 

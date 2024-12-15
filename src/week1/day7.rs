@@ -1,8 +1,8 @@
 use std::fs;
 
-use log::{info};
+use log::info;
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day7.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_1\\day7.txt";
 
 enum OperationType {
     Add,

@@ -6,7 +6,7 @@ use std::{
     fs,
 };
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day12.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_2\\day12.txt";
 
 #[derive(Debug)]
 pub struct Shape {

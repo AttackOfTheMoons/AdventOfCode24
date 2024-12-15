@@ -6,7 +6,7 @@ use std::{
 
 use log::{debug, info, trace};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day9.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_2\\day9.txt";
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 struct Range {

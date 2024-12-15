@@ -5,7 +5,7 @@ use std::{
     fs,
 };
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day5.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_1\\day5.txt";
 
 pub fn day5() {
     let file_contents =

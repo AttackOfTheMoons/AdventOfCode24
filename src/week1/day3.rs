@@ -1,7 +1,7 @@
 use log::{debug, info};
 use std::fs;
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day3.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_1\\day3.txt";
 
 trait Evaluable {
     fn evaluate(&self) -> u32;

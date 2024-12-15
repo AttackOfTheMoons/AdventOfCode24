@@ -4,14 +4,14 @@ use log::{debug, info, trace};
 
 use crate::Direction;
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day15.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_3\\day15.txt";
 
 pub fn day15() {
     // Parsing input.
     let file_contents =
         fs::read_to_string(INPUT_FILE).expect(format!("Could not read file {INPUT_FILE}").as_str());
 
-    // part_1(file_contents);
+    part_1(file_contents.clone());
     part_2(file_contents);
 }
 
@@ -48,19 +48,7 @@ fn part_2(file_contents: String) {
         map_vec.push(line_vec);
     }
 
-    let directions: Vec<Direction> = parts
-        .next()
-        .expect("directions not found")
-        .chars()
-        .filter(|&ch| ch != '\r' && ch != '\n')
-        .map(|ch| match ch {
-            '^' => Direction::Up,
-            'v' => Direction::Down,
-            '>' => Direction::Right,
-            '<' => Direction::Left,
-            _ => panic!("Direction symbol not recognized during parsing"),
-        })
-        .collect();
+    let directions = extract_directions(parts);
     let (mut guard_x, mut guard_y) = find_guard(&map_vec);
 
     for (dir_idx, dir) in directions.into_iter().enumerate() {
@@ -85,6 +73,23 @@ fn part_2(file_contents: String) {
         }
     }
     info!("Sum of all boxes' GPS coords: {sum}");
+}
+
+fn extract_directions(mut parts: std::str::Split<'_, &str>) -> Vec<Direction> {
+    let directions: Vec<Direction> = parts
+        .next()
+        .expect("directions not found")
+        .chars()
+        .filter(|&ch| ch != '\r' && ch != '\n')
+        .map(|ch| match ch {
+            '^' => Direction::Up,
+            'v' => Direction::Down,
+            '>' => Direction::Right,
+            '<' => Direction::Left,
+            _ => panic!("Direction symbol not recognized during parsing"),
+        })
+        .collect();
+    directions
 }
 
 fn move_pt2(
@@ -219,37 +224,20 @@ fn find_guard(map_vec: &Vec<Vec<char>>) -> (usize, usize) {
     }
 }
 
-fn parse_input_pt1(file_contents: String) -> (Vec<Vec<char>>, Vec<Direction>, (usize, usize)) {
+#[allow(dead_code)]
+fn part_1(file_contents: String) {
     let mut parts = file_contents.split("\r\n\r\n");
 
-    let map_vec: Vec<Vec<char>> = parts
+    let mut map_vec: Vec<Vec<char>> = parts
         .next()
         .expect("Map part not found")
         .split("\r\n")
         .map(|line| line.chars().collect())
         .collect();
-    let directions: Vec<Direction> = parts
-        .next()
-        .expect("directions not found")
-        .chars()
-        .filter(|&ch| ch != '\r' && ch != '\n')
-        .map(|ch| match ch {
-            '^' => Direction::Up,
-            'v' => Direction::Down,
-            '>' => Direction::Right,
-            '<' => Direction::Left,
-            c => panic!("Unrecognized direction \"{c}\""),
-        })
-        .collect();
 
-    let guard = find_guard(&map_vec);
+    let directions: Vec<Direction> = extract_directions(parts);
 
-    return (map_vec, directions, guard);
-}
-
-#[allow(dead_code)]
-fn part_1(file_contents: String) {
-    let (mut map_vec, directions, (mut guard_x, mut guard_y)) = parse_input_pt1(file_contents);
+    let (mut guard_x, mut guard_y) = find_guard(&map_vec);
     // part 1.
     for (dir_idx, dir) in directions.into_iter().enumerate() {
         if can_move_pt1(guard_x, guard_y, dir, &map_vec) {

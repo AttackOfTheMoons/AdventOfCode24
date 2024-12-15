@@ -5,7 +5,7 @@ use log::{info, trace};
 
 use crate::Direction;
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day6.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_1\\day6.txt";
 
 pub fn day6() {
     let file_contents =

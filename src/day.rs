@@ -2,7 +2,7 @@ use std::fs;
 
 use log::{debug, info, trace};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_X\\dayY.txt";
 
 pub fn day() {
     let file_contents =

@@ -12,7 +12,7 @@ use regex::Regex;
 
 use crate::{Coord2D, Direction};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day14.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_2\\day14.txt";
 
 const INPUT_PATTERN: &str = r"(?m)(?R)^p=(?<p_x>\d+),(?<p_y>\d+) v=(?<v_x>-?\d+),(?<v_y>-?\d+)$";
 
@@ -46,7 +46,7 @@ pub fn day14() {
     let file_contents =
         fs::read_to_string(INPUT_FILE).expect(format!("Could not read file {INPUT_FILE}").as_str());
     let re = Regex::new(INPUT_PATTERN).unwrap();
-    let mut robots: Vec<_> = re
+    let robots: Vec<_> = re
         .captures_iter(&file_contents)
         .map(|c| {
             Robot::new(
@@ -74,10 +74,6 @@ impl Shape {
 
     pub fn new_with_points(points: HashSet<(usize, usize)>) -> Self {
         Shape { points }
-    }
-
-    fn area(&self) -> usize {
-        self.points.len()
     }
 
     fn merge(self, other: Shape) -> Shape {
@@ -109,7 +105,7 @@ impl Shape {
         return false;
     }
 }
-fn part_two(mut robots: Vec<Robot>) {
+fn part_two(robots: Vec<Robot>) {
     let (tx, rx) = channel::unbounded();
     let mut child_threads = Vec::new();
     for i in 0..10 {

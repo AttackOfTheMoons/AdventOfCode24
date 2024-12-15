@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs};
 
 use log::{info, trace};
 
-const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day11.txt";
+const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_2\\day11.txt";
 
 // Change this for part 1 vs part 2.
 const BLINK_COUNT: usize = 75;
