@@ -4,6 +4,8 @@ use log::{info, trace};
 
 use regex::Regex;
 
+use crate::Coord2D;
+
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\day13.txt";
 
 const INPUT_PATTERN: &str = r"(?m)(?R)^Button A: X\+(?<button_a_x>\d+), Y\+(?<button_a_y>\d+)\r\nButton B: X\+(?<button_b_x>\d+), Y\+(?<button_b_y>\d+)\r\nPrize: X=(?<prize_x>\d+), Y=(?<prize_y>\d+)(?:\r\n)?$";
@@ -27,18 +29,6 @@ impl Machine {
             button_b: Coord2D::new(b_x, b_y),
             prize: Coord2D::new(p_x, p_y),
         }
-    }
-}
-
-#[derive(Debug, PartialEq)]
-struct Coord2D {
-    x: i64,
-    y: i64,
-}
-
-impl Coord2D {
-    fn new(x: i64, y: i64) -> Self {
-        Self { x, y }
     }
 }
 

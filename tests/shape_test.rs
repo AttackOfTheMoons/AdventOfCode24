@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use adventofcode24::day12::Shape;
+use adventofcode24::week2::day12::Shape;
 
 // for _ in 0.100 is because the order that nodes are visited in is not the same every time, since it is a hashset traversal
 
