@@ -68,7 +68,7 @@ impl Shape {
                 Direction::Left,
                 Direction::Right,
             ] {
-                let result = dir.translate(point);
+                let result = dir.try_translate(point);
                 if result.is_none() {
                     side_values.insert((point, dir), true);
                     sides += 1;
@@ -87,7 +87,7 @@ impl Shape {
                 Direction::Left,
                 Direction::Right,
             ] {
-                let result = dir.translate(point);
+                let result = dir.try_translate(point);
                 if result.is_none() {
                     continue;
                 }

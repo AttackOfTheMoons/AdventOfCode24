@@ -39,7 +39,7 @@ impl Direction {
             Direction::Right => Direction::Left,
         }
     }
-    fn translate(&self, (pt_x, pt_y): (usize, usize)) -> Option<(usize, usize)> {
+    fn try_translate(&self, (pt_x, pt_y): (usize, usize)) -> Option<(usize, usize)> {
         let (dir_x, dir_y) = self.coords();
         if pt_x == 0 && dir_x < 0 || pt_y == 0 && dir_y < 0 {
             return None;
@@ -48,5 +48,15 @@ impl Direction {
             (pt_x as i32 + dir_x) as usize,
             (pt_y as i32 + dir_y) as usize,
         ))
+    }
+    fn translate(&self, (pt_x, pt_y): (usize, usize)) -> (usize, usize) {
+        let (dir_x, dir_y) = self.coords();
+        if pt_x == 0 && dir_x < 0 || pt_y == 0 && dir_y < 0 {
+            panic!("Tried to move overflow direction ({self:?}): ({pt_x}, {pt_y})");
+        }
+        (
+            (pt_x as i32 + dir_x) as usize,
+            (pt_y as i32 + dir_y) as usize,
+        )
     }
 }

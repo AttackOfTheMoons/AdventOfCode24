@@ -11,11 +11,11 @@ pub fn day15() {
     let file_contents =
         fs::read_to_string(INPUT_FILE).expect(format!("Could not read file {INPUT_FILE}").as_str());
 
-    part_1(file_contents.clone());
-    part_2(file_contents);
+    part_1(&file_contents);
+    part_2(&file_contents);
 }
 
-fn part_2(file_contents: String) {
+fn part_2(file_contents: &String) {
     let mut parts = file_contents.split("\r\n\r\n");
 
     let mut map_vec = Vec::new();
@@ -54,9 +54,7 @@ fn part_2(file_contents: String) {
     for (dir_idx, dir) in directions.into_iter().enumerate() {
         if can_move_pt2(guard_x, guard_y, dir, &map_vec, false) {
             move_pt2(guard_x, guard_y, dir, '.', &mut map_vec, false);
-            let (dir_x, dir_y) = dir.coords();
-            let (res_x, res_y) = (guard_x as i32 + dir_x, guard_y as i32 + dir_y);
-            (guard_x, guard_y) = (res_x as usize, res_y as usize);
+            (guard_x, guard_y) = dir.translate((guard_x, guard_y));
         }
         debug!("Step #{dir_idx} - Moved {dir:?}");
         for line in map_vec.iter() {
@@ -92,6 +90,7 @@ fn extract_directions(mut parts: std::str::Split<'_, &str>) -> Vec<Direction> {
     directions
 }
 
+//
 fn move_pt2(
     pos_x: usize,
     pos_y: usize,
@@ -117,27 +116,22 @@ fn move_pt2(
         panic!("Tried to move a wall");
     }
     // Moving Guard or a Box
-    let (dir_x, dir_y) = dir.coords();
-    let (res_x, res_y) = (pos_x as i32 + dir_x, pos_y as i32 + dir_y);
-    if res_x < 0 || res_y < 0 {
-        panic!("Moving out of bounds");
-    }
-    let (res_x, res_y) = (res_x as usize, res_y as usize);
-    if current == '@'
-        || (current == '[' && dir == Direction::Left)
-        || (current == '[' && dir == Direction::Right)
-        || (current == ']' && dir == Direction::Left)
-        || (current == ']' && dir == Direction::Right)
-    {
+    let (res_x, res_y) = dir.translate((pos_x, pos_y));
+    let horizontal = dir == Direction::Left || dir == Direction::Right;
+    if current == '@' || horizontal {
         move_pt2(res_x, res_y, dir, current, vec, false);
         *vec.get_mut(res_y).unwrap().get_mut(res_x).unwrap() = current;
         *vec.get_mut(pos_y).unwrap().get_mut(pos_x).unwrap() = char_to_put;
         return;
     }
+    // Moving a box vertically:
+
+    // Move the current half
     move_pt2(res_x, res_y, dir, current, vec, false);
     *vec.get_mut(res_y).unwrap().get_mut(res_x).unwrap() = current;
     *vec.get_mut(pos_y).unwrap().get_mut(pos_x).unwrap() = char_to_put;
 
+    // Move its other half
     if current == '[' && !ignore_neighbor {
         move_pt2(pos_x + 1, pos_y, dir, '.', vec, true);
     }
@@ -154,26 +148,18 @@ fn can_move_pt2(
     ignore_neighbor: bool,
 ) -> bool {
     trace!("can_move_pt2(pos_x: {pos_x}: usize, pos_y: {pos_y}, dir: {dir:?}, vec)");
+    let horizontal = dir == Direction::Left || dir == Direction::Right;
     match vec.get(pos_y) {
         Some(line) => match line.get(pos_x) {
-            Some(&ch) => match (ch, dir) {
+            Some(&ch) => match (ch, horizontal) {
                 ('#', _) => false,
                 ('.', _) => true,
-                ('@', _)
-                | ('[', Direction::Left)
-                | ('[', Direction::Right)
-                | (']', Direction::Left)
-                | (']', Direction::Right) => {
-                    let (dir_x, dir_y) = dir.coords();
-                    let (res_x, res_y) = (pos_x as i32 + dir_x, pos_y as i32 + dir_y);
-                    if res_x < 0 || res_y < 0 {
-                        false
-                    } else {
-                        can_move_pt2(res_x as usize, res_y as usize, dir, vec, false)
-                    }
-                }
+                ('@', _) | ('[', true) | (']', true) => match dir.try_translate((pos_x, pos_y)) {
+                    None => false,
+                    Some((res_x, res_y)) => can_move_pt2(res_x, res_y, dir, vec, false),
+                },
                 // recursively check the direction + our box counter-part in the same direction.
-                ('[', Direction::Up) | ('[', Direction::Down) => {
+                ('[', false) => {
                     let (_, dir_y) = dir.coords();
                     let res_y = pos_y as i32 + dir_y;
                     let (res_x1, res_x2) = (pos_x, pos_x + 1);
@@ -185,7 +171,7 @@ fn can_move_pt2(
                                 || can_move_pt2(res_x2 as usize, pos_y, dir, vec, true))
                     }
                 }
-                (']', Direction::Up) | (']', Direction::Down) => {
+                (']', false) => {
                     let (_, dir_y) = dir.coords();
                     let res_y = pos_y as i32 + dir_y;
                     let (res_x1, res_x2) = (pos_x, pos_x - 1);
@@ -225,7 +211,7 @@ fn find_guard(map_vec: &Vec<Vec<char>>) -> (usize, usize) {
 }
 
 #[allow(dead_code)]
-fn part_1(file_contents: String) {
+fn part_1(file_contents: &String) {
     let mut parts = file_contents.split("\r\n\r\n");
 
     let mut map_vec: Vec<Vec<char>> = parts
@@ -242,9 +228,7 @@ fn part_1(file_contents: String) {
     for (dir_idx, dir) in directions.into_iter().enumerate() {
         if can_move_pt1(guard_x, guard_y, dir, &map_vec) {
             move_pt1(guard_x, guard_y, dir, '.', &mut map_vec);
-            let (dir_x, dir_y) = dir.coords();
-            let (res_x, res_y) = (guard_x as i32 + dir_x, guard_y as i32 + dir_y);
-            (guard_x, guard_y) = (res_x as usize, res_y as usize);
+            (guard_x, guard_y) = dir.translate((guard_x, guard_y));
         }
         debug!("Step #{dir_idx} - Moved {dir:?}");
         for line in map_vec.iter() {
@@ -308,15 +292,10 @@ fn can_move_pt1(pos_x: usize, pos_y: usize, dir: Direction, vec: &Vec<Vec<char>>
         Some(line) => match line.get(pos_x) {
             Some(&ch) => match ch {
                 '#' => false,
-                'O' | '@' => {
-                    let (dir_x, dir_y) = dir.coords();
-                    let (res_x, res_y) = (pos_x as i32 + dir_x, pos_y as i32 + dir_y);
-                    if res_x < 0 || res_y < 0 {
-                        false
-                    } else {
-                        can_move_pt1(res_x as usize, res_y as usize, dir, vec)
-                    }
-                }
+                'O' | '@' => match dir.try_translate((pos_x, pos_y)) {
+                    None => false,
+                    Some((res_x, res_y)) => can_move_pt1(res_x, res_y, dir, vec),
+                },
                 '.' => true,
                 c => panic!("Unrecognized symbol: {c}"),
             },
