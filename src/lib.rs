@@ -60,3 +60,23 @@ impl Direction {
         )
     }
 }
+
+/// Find's `guard_symbol` which must exist 1 time in `map_vec`
+fn find_single_instance_of_char(map_vec: &Vec<Vec<char>>, guard_symbol: char) -> (usize, usize) {
+    let target_pos = map_vec
+        .iter()
+        .enumerate()
+        .map(|(index, line)| (index, line.iter().position(|c| *c == guard_symbol)))
+        .filter(|(_outer_index, inner_result)| inner_result.is_some())
+        .next();
+
+    match target_pos {
+        Some((outer_index, inner_result)) => match inner_result {
+            Some(inner_index) => {
+                return (inner_index, outer_index);
+            }
+            None => panic!("Couldn't find start_x"),
+        },
+        None => panic!("Couldn't find start_y"),
+    }
+}

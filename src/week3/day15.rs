@@ -1,8 +1,8 @@
 use std::fs;
 
-use log::{debug, info, trace};
+use log::{info, trace};
 
-use crate::Direction;
+use crate::{find_single_instance_of_char, Direction};
 
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_3\\day15.txt";
 
@@ -49,16 +49,16 @@ fn part_2(file_contents: &String) {
     }
 
     let directions = extract_directions(parts);
-    let (mut guard_x, mut guard_y) = find_guard(&map_vec);
+    let (mut guard_x, mut guard_y) = find_single_instance_of_char(&map_vec, '@');
 
     for (dir_idx, dir) in directions.into_iter().enumerate() {
         if can_move_pt2(guard_x, guard_y, dir, &map_vec, false) {
             move_pt2(guard_x, guard_y, dir, '.', &mut map_vec, false);
             (guard_x, guard_y) = dir.translate((guard_x, guard_y));
         }
-        debug!("Step #{dir_idx} - Moved {dir:?}");
+        trace!("Step #{dir_idx} - Moved {dir:?}");
         for line in map_vec.iter() {
-            debug!("{}", line.iter().collect::<String>());
+            trace!("{}", line.iter().collect::<String>());
         }
     }
 
@@ -191,25 +191,6 @@ fn can_move_pt2(
     }
 }
 
-fn find_guard(map_vec: &Vec<Vec<char>>) -> (usize, usize) {
-    let robot_pos = map_vec
-        .iter()
-        .enumerate()
-        .map(|(index, line)| (index, line.iter().position(|c| *c == '@')))
-        .filter(|(_outer_index, inner_result)| inner_result.is_some())
-        .next();
-
-    match robot_pos {
-        Some((outer_index, inner_result)) => match inner_result {
-            Some(inner_index) => {
-                return (inner_index, outer_index);
-            }
-            None => panic!("Couldn't find start_x"),
-        },
-        None => panic!("Couldn't find start_y"),
-    }
-}
-
 #[allow(dead_code)]
 fn part_1(file_contents: &String) {
     let mut parts = file_contents.split("\r\n\r\n");
@@ -223,16 +204,16 @@ fn part_1(file_contents: &String) {
 
     let directions: Vec<Direction> = extract_directions(parts);
 
-    let (mut guard_x, mut guard_y) = find_guard(&map_vec);
+    let (mut guard_x, mut guard_y) = find_single_instance_of_char(&map_vec, '@');
     // part 1.
     for (dir_idx, dir) in directions.into_iter().enumerate() {
         if can_move_pt1(guard_x, guard_y, dir, &map_vec) {
             move_pt1(guard_x, guard_y, dir, '.', &mut map_vec);
             (guard_x, guard_y) = dir.translate((guard_x, guard_y));
         }
-        debug!("Step #{dir_idx} - Moved {dir:?}");
+        trace!("Step #{dir_idx} - Moved {dir:?}");
         for line in map_vec.iter() {
-            debug!("{}", line.iter().collect::<String>());
+            trace!("{}", line.iter().collect::<String>());
         }
     }
 
