@@ -1,9 +1,9 @@
 use std::{
-    collections::{HashMap, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     fs,
 };
 
-use log::{info, trace};
+use log::{debug, info, trace};
 
 use crate::{find_single_instance_of_char, Direction};
 
@@ -68,12 +68,67 @@ pub fn day16() {
     }
     let end_pos = find_single_instance_of_char(&map_vec, 'E');
 
-    let end_score = all_directions
+    let end_score = *all_directions
         .iter()
         .filter_map(|&dir| visited.get(&(end_pos, dir)))
         .min()
         .unwrap();
+
+    let mut final_map: HashMap<(usize, usize), Vec<(Direction, i32)>> = HashMap::new();
+
+    for (&(pos, dir), &score) in visited.iter() {
+        let v = final_map.entry(pos).or_insert(vec![]);
+        v.push((dir, score));
+    }
+
+    let mut valid_tiles = HashSet::new();
+
+    let mut q = VecDeque::new();
+    // initial setup. add all final states to the queue to look at.
+    for &dir in all_directions.iter() {
+        if let Some(&s) = visited.get(&(end_pos, dir)) {
+            if s == end_score {
+                q.push_back((end_pos, dir, end_score));
+            }
+        }
+    }
+
+    while let Some((pos, facing, score)) = q.pop_front() {
+        valid_tiles.insert(pos);
+        if let Some(result) = facing.opposite().try_translate(pos) {
+            if let Some(list_of_states) = final_map.get(&result) {
+                for &(facing_state, score_state) in list_of_states {
+                    if facing_state == facing && score == score_state + 1 {
+                        q.push_back((result, facing_state, score_state));
+                    } else if facing_state != facing && score == score_state + 1001 {
+                        q.push_back((result, facing_state, score_state));
+                    }
+                }
+            }
+        }
+    }
+
     info!("Reindeer score: {}", end_score);
+    info!("Valid path tiles count: {}", valid_tiles.len());
+
+    let mut map_vec = map_vec.clone();
+    for (pos_x, pos_y) in valid_tiles {
+        unsafe {
+            *map_vec.get_unchecked_mut(pos_y).get_unchecked_mut(pos_x) = 'O';
+        }
+    }
+    unsafe {
+        *map_vec
+            .get_unchecked_mut(start_pos.1)
+            .get_unchecked_mut(start_pos.0) = 'S';
+        *map_vec
+            .get_unchecked_mut(end_pos.1)
+            .get_unchecked_mut(end_pos.0) = 'E';
+    }
+
+    for line in map_vec.iter() {
+        debug!("{}", line.iter().collect::<String>());
+    }
 }
 
 // recursive DFS approach stack overflows on large input.
