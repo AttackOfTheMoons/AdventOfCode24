@@ -132,6 +132,7 @@ pub fn day16() {
 }
 
 // recursive DFS approach stack overflows on large input.
+#[allow(dead_code)]
 fn first_attempt(map_vec: &Vec<Vec<char>>) {
     let current_pos = find_single_instance_of_char(&map_vec, 'S');
 
