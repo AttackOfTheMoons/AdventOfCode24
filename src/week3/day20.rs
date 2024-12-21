@@ -133,10 +133,8 @@ fn search_depth(
     vec_map_weights: &Vec<Vec<i32>>,
     cheat_map: &mut HashMap<((usize, usize), i32), HashSet<(usize, usize)>>,
 ) {
-    let current: i32;
     if let Some(line) = vec_map_weights.get(pos_y) {
         if let Some(&i) = line.get(pos_x) {
-            current = i;
             if i != -1 {
                 cheat_map.insert(((pos_x, pos_y), 0), HashSet::from([(pos_x, pos_y)]));
             }

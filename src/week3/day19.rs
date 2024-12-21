@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs};
 
-use log::{debug, info, trace};
+use log::{info, trace};
 
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_3\\day19.txt";
 
