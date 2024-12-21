@@ -3,7 +3,7 @@ use std::{
     fs,
 };
 
-use log::{debug, info, trace};
+use log::info;
 
 use crate::Direction;
 
@@ -63,7 +63,7 @@ pub fn day18() {
     }
 }
 
-fn find_shortest_path(
+pub fn find_shortest_path(
     map_vec: Vec<Vec<char>>,
     start_pos: (usize, usize),
     end_pos: (usize, usize),
@@ -106,7 +106,7 @@ fn find_shortest_path(
 
         for &dir in all_directions.iter() {
             if let Some(result) = dir.try_translate(pos) {
-                let mut score_to_send = curr_score + 1;
+                let score_to_send = curr_score + 1;
                 to_visit.push_back((result, score_to_send));
             }
         }

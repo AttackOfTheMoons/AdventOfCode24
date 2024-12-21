@@ -1,9 +1,6 @@
-use log::{debug, info, trace};
+use log::{info, trace};
 use regex::Regex;
-use std::{
-    collections::{HashMap, HashSet},
-    fs, thread,
-};
+use std::fs;
 
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_3\\day17.txt";
 
@@ -32,7 +29,7 @@ pub fn day17() {
         .collect::<Vec<u64>>();
 
     // 2 : (3, 6)
-    let mut guess_vec = vec![1, 0, 3, 5, 5, 1, 0, 4, 3, 2, 5, 3, 6, 7, 6, 4];
+    let guess_vec = vec![1, 0, 3, 5, 5, 1, 0, 4, 3, 2, 5, 3, 6, 7, 6, 4];
 
     let place = 15;
 
