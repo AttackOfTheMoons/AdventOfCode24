@@ -1,11 +1,9 @@
-use core::num;
 use std::{
-    cmp::Ordering,
     collections::{HashMap, HashSet},
     fs,
-    process::exit,
 };
 
+use itertools::Itertools;
 use log::{debug, info, trace};
 use regex::Regex;
 
@@ -14,6 +12,8 @@ use crate::Direction;
 const INPUT_FILE: &str = "C:\\Projects\\adventofcode24\\input\\week_3\\day21.txt";
 
 const CODE_PATTERN: &str = r"(\d+)A";
+
+const LAYERS: usize = 25;
 
 pub fn day21() {
     let file_contents =
@@ -31,25 +31,52 @@ pub fn day21() {
     let re = Regex::new(CODE_PATTERN).unwrap();
 
     let mut total = 0;
+    let mut optimal_paths: HashMap<(char, char), (usize, Vec<char>)> = HashMap::new();
+    let warmup = (1..=2)
+        .map(|_| 0..=10)
+        .multi_cartesian_product()
+        .flatten()
+        .map(|c| match c {
+            0 => '0',
+            1 => '1',
+            2 => '2',
+            3 => '3',
+            4 => '4',
+            5 => '5',
+            6 => '6',
+            7 => '7',
+            8 => '8',
+            9 => '9',
+            10 => 'A',
+            _ => panic!(),
+        })
+        .collect::<Vec<_>>();
+
+    // Warmup cache?
+    let _ = standard_keyboard.find_sequence(warmup, 5, &arrow_keyboard, &mut optimal_paths);
+
     for pattern in re.captures_iter(&file_contents) {
         if let Some(number_match) = pattern.get(1) {
             let original_seq = pattern.get(0).unwrap().as_str().chars().collect();
-
-            let seq = standard_keyboard.find_sequence(original_seq, 2, &arrow_keyboard);
-            // trace!("seq: {:?}", seq);
-            let layer2 = arrow_keyboard.find_sequence(seq, 1, &arrow_keyboard);
-            // trace!("layer2: {:?}", layer2);
-            let layer3 = arrow_keyboard.find_sequence(layer2, 0, &arrow_keyboard);
-            // trace!("layer3: {:?}", layer3);
+            let mut seq = standard_keyboard.find_sequence(
+                original_seq,
+                LAYERS,
+                &arrow_keyboard,
+                &mut optimal_paths,
+            );
+            for i in (0..LAYERS - 1).rev() {
+                seq = arrow_keyboard.find_sequence(seq, i, &arrow_keyboard, &mut optimal_paths);
+            }
             let digits_val = number_match.as_str().parse::<usize>().unwrap();
-            total += digits_val * layer3.len();
-            trace!(
+            total += digits_val * seq.len();
+            debug!(
                 "{}A: {} * {digits_val}",
                 &file_contents[number_match.range()],
-                layer3.len()
+                seq.len()
             );
         }
     }
+    trace!("{optimal_paths:?}");
     info!("Complexity score = {total}");
 }
 
@@ -61,76 +88,72 @@ fn make_arrow_keyboard() -> Keyboard {
     Keyboard::new(2, 3, vec!['^', 'A', '<', 'v', '>'], HashSet::from([0]))
 }
 
-// This is what I like to call overengineering a problem.
-// Probably not for any benefit.
+
 impl Keyboard {
     pub fn find_sequence(
         &self,
         sequence: Vec<char>,
         layer: usize,
         arrow_keyboard: &Keyboard,
+        optimal_paths: &mut HashMap<(char, char), (usize, Vec<char>)>,
     ) -> Vec<char> {
-        // a list of all possible paths that could be taken
-        let mut possible_paths: Vec<Vec<char>> = Vec::new();
+        let mut result: Vec<char> = Vec::new();
 
         let mut prev = 'A';
         for c in sequence {
-            if let Some(paths) = self.key_paths.get(&(prev, c)) {
-                // trace!("Handling {prev} -> {c}");
-                // Last is always A. both previous path's last and current path's last
-                if possible_paths.len() == 0 {
-                    possible_paths.extend(paths.clone());
+            if prev == c {
+                result.push('A');
+                continue;
+            }
+            if let Some(best_path) = optimal_paths.get(&((prev, c))) {
+                if best_path.0 >= layer || best_path.0 > 3 {
+                    // if we already found it at a depth further than 3, surely its good enough.
+                    result.extend(best_path.1.iter());
                     prev = c;
                     continue;
                 }
-                // There are 1 or more possible existing paths.
-
-                let mut new_possible = HashSet::new();
-                for path in paths {
-                    let mut possible_paths_clone = possible_paths.clone();
-                    for curr in possible_paths_clone.iter_mut() {
-                        // trace!("{prev} -> {c} == {curr:?}");
-                        curr.extend(path);
-                    }
-                    new_possible.extend(possible_paths_clone);
+                trace!("manually calculating best path for {prev}, {c} at depth {layer} since highest cache was {}", best_path.0);
+            }
+            if let Some(paths) = self.key_paths.get(&(prev, c)) {
+                // Not necessary to optimize the last layer.
+                if layer == 0 {
+                    result.extend(paths.get(0).unwrap());
+                    prev = c;
+                    continue;
                 }
-                // trace!("new_possible: {new_possible:?}");
+                // else:
+                trace!("manually calculating best path for {prev}, {c} at depth {layer}");
+                let mut best_path: Option<(&Vec<char>, usize)> = None;
+                for path in paths.iter() {
+                    let mut test_path = path.clone();
+                    for i in (0..layer).rev() {
+                        // trace!("Testing {i} - {test_path:?}, ");
+                        test_path = arrow_keyboard.find_sequence(
+                            test_path,
+                            i,
+                            arrow_keyboard,
+                            optimal_paths,
+                        );
+                    }
+                    if let Some(best) = best_path {
+                        if best.1 > test_path.len() {
+                            best_path = Some((path, test_path.len()));
+                        }
+                    } else {
+                        best_path = Some((path, test_path.len()));
+                    }
+                }
+                assert_ne!(best_path, None);
 
-                possible_paths = Vec::from_iter(new_possible.into_iter());
+                let best_path = best_path.unwrap().0;
+                optimal_paths.insert((prev, c), (layer, best_path.clone()));
+                result.extend(best_path);
                 prev = c;
             } else {
                 panic!("Missing a path from {prev} to {c}");
             }
         }
-        // to pick the best possible path, simulate the number of layers left.
-        if layer == 0 {
-            // If this is the bottom layer, no need to simulate, just use the first one.
-            // trace!("Returning here layer == 0");
-            return possible_paths[0].clone();
-        }
-
-        let mut best_path: Option<(&Vec<char>, usize)> = None;
-
-        for path in possible_paths.iter() {
-            let mut test_path = path.clone();
-            for i in (0..layer).rev() {
-                // trace!("Testing {i} - {test_path:?}, ");
-                test_path = arrow_keyboard.find_sequence(test_path, i, arrow_keyboard);
-            }
-            if let Some(best) = best_path {
-                if best.1 > test_path.len() {
-                    best_path = Some((path, test_path.len()));
-                }
-            } else {
-                best_path = Some((path, test_path.len()));
-            }
-        }
-        // trace!(
-        //     "Returning here best path was {:?} out of {:?}",
-        //     best_path.unwrap().0,
-        //     possible_paths
-        // );
-        return best_path.unwrap().0.clone();
+        return result;
     }
 
     fn new(rows: usize, cols: usize, keys: Vec<char>, dead_indices: HashSet<usize>) -> Self {
