@@ -14,7 +14,7 @@ pub fn simple_test() {
 }
 
 #[test]
-pub fn simple_L_side_test() {
+pub fn simple_l_side_test() {
     for _ in 0..100 {
         let shape = Shape::new_with_points('T', HashSet::from([(1, 3), (2, 3), (1, 4)]));
         assert_eq!(shape.sides(), 6);
@@ -22,7 +22,7 @@ pub fn simple_L_side_test() {
 }
 
 #[test]
-pub fn big_L_side_test() {
+pub fn big_l_side_test() {
     for _ in 0..100 {
         let shape = Shape::new_with_points('T', HashSet::from([(1, 3), (2, 3), (3, 3), (1, 4)]));
         assert_eq!(shape.sides(), 6);
