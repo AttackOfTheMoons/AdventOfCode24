@@ -88,7 +88,6 @@ fn make_arrow_keyboard() -> Keyboard {
     Keyboard::new(2, 3, vec!['^', 'A', '<', 'v', '>'], HashSet::from([0]))
 }
 
-
 impl Keyboard {
     pub fn find_sequence(
         &self,
