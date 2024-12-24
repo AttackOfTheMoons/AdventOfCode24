@@ -63,12 +63,10 @@ fn part_two(file_contents: &String) {
     let (node, _) = highest.unwrap();
 
     let mut counted = HashSet::new();
-    for &i in pairs.get(node).unwrap().iter() {
-        for &j in pairs.get(node).unwrap().iter().filter(|&&s| *s != *i) {
-            let neighbor_pair = UnorderedNTuple::from([i, j]);
-            if lan_parties_pairs.contains(&neighbor_pair) {
-                counted.insert(neighbor_pair);
-            }
+    for i in pairs.get(node).unwrap().iter().combinations(2) {
+        let neighbor_pair = UnorderedNTuple::from([&i[0], *i[1]]);
+        if lan_parties_pairs.contains(&neighbor_pair) {
+            counted.insert(neighbor_pair);
         }
     }
 
