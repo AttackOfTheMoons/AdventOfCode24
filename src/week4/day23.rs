@@ -3,6 +3,7 @@ use std::{
     fs,
 };
 
+use itertools::Itertools;
 use log::{debug, info, trace};
 use unordered_n_tuple::UnorderedNTuple;
 
@@ -37,61 +38,45 @@ fn part_two(file_contents: &String) {
         pairs.entry(pair.1).or_insert(HashSet::new()).insert(pair.0);
     }
 
-    loop {
-        trace!("There are {} nodes", nodes.len());
-        let mut lowest: Option<(&str, usize)> = None;
-        let mut highest: Option<(&str, usize)> = None;
-        for &node in nodes.iter() {
-            let mut counted = HashSet::new();
-            for &i in pairs.get(node).unwrap().iter() {
-                for &j in pairs.get(node).unwrap().iter().filter(|&&s| *s != *i) {
-                    let neighbor_pair = UnorderedNTuple::from([i, j]);
-                    if lan_parties_pairs.contains(&neighbor_pair) {
-                        counted.insert(neighbor_pair);
-                    }
+    let mut highest: Option<(&str, usize)> = None;
+    for &node in nodes.iter() {
+        let mut counted = HashSet::new();
+        for &i in pairs.get(node).unwrap().iter() {
+            for &j in pairs.get(node).unwrap().iter().filter(|&&s| *s != *i) {
+                let neighbor_pair = UnorderedNTuple::from([i, j]);
+                if lan_parties_pairs.contains(&neighbor_pair) {
+                    counted.insert(neighbor_pair);
                 }
-            }
-
-            match lowest {
-                Some(low) => {
-                    if low.1 > counted.len() {
-                        lowest = Some((node, counted.len()));
-                    }
-                }
-                None => lowest = Some((node, counted.len())),
-            }
-
-            match highest {
-                Some(high) => {
-                    if high.1 < counted.len() {
-                        highest = Some((node, counted.len()));
-                    }
-                }
-                None => highest = Some((node, counted.len())),
             }
         }
 
-        if lowest.is_none() || highest.is_none() || lowest.unwrap().0 == highest.unwrap().0 {
-            trace!(
-                "lowest = {lowest:?}, highest = {highest:?}. ==: {}",
-                lowest.unwrap().0 == highest.unwrap().0
-            );
-            break;
-        } else {
-            let to_remove = lowest.unwrap().0;
-            let remove_result = nodes.remove(to_remove);
-            trace!(
-                "Removing {} was {}",
-                to_remove,
-                if remove_result {
-                    "Successful"
-                } else {
-                    "Unsuccessful"
+        match highest {
+            Some(high) => {
+                if high.1 < counted.len() {
+                    highest = Some((node, counted.len()));
                 }
-            );
+            }
+            None => highest = Some((node, counted.len())),
         }
     }
-    let mut nodes = Vec::from_iter(nodes);
+
+    let (node, _) = highest.unwrap();
+
+    let mut counted = HashSet::new();
+    for &i in pairs.get(node).unwrap().iter() {
+        for &j in pairs.get(node).unwrap().iter().filter(|&&s| *s != *i) {
+            let neighbor_pair = UnorderedNTuple::from([i, j]);
+            if lan_parties_pairs.contains(&neighbor_pair) {
+                counted.insert(neighbor_pair);
+            }
+        }
+    }
+
+    let mut nodes = HashSet::<&str>::from_iter(counted.iter().flat_map(|&tup| tup.0))
+        .iter()
+        .map(|&s| s)
+        .collect_vec();
+    nodes.push(node);
     nodes.sort();
     info!("The password is '{}'", nodes.join(","));
 }
