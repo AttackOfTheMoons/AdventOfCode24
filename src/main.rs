@@ -1,4 +1,4 @@
-use adventofcode24::week4::day24::day24;
+use adventofcode24::week4::{day25::day25};
 use log::info;
 use std::time::Instant;
 
@@ -6,8 +6,8 @@ fn main() {
     env_logger::init();
     let now = Instant::now();
     {
-        day24();
+        day25();
     }
     let elapsed = now.elapsed();
-    info!("Day 24 took: {elapsed:.2?}");
+    info!("Day 25 took: {elapsed:.2?}");
 }
